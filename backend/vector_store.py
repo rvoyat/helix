@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List
 
 import chromadb
@@ -11,6 +12,9 @@ from backend.config import INGESTION_PROVIDER, LLAMAPARSE_API_KEY
 _COLLECTION  = "helix_docs"
 _EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
+_CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
+_CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8093"))
+
 _splitter = RecursiveCharacterTextSplitter(
     chunk_size=800,
     chunk_overlap=150,
@@ -23,7 +27,7 @@ _embeddings = HuggingFaceEmbeddings(
     encode_kwargs={"normalize_embeddings": True},
 )
 
-_chroma_client = chromadb.HttpClient(host="localhost", port=8093)
+_chroma_client = chromadb.HttpClient(host=_CHROMA_HOST, port=_CHROMA_PORT)
 _vectorstore   = Chroma(
     collection_name=_COLLECTION,
     embedding_function=_embeddings,

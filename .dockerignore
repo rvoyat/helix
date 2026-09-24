@@ -1,0 +1,15 @@
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+chroma_db/
+.env
+*.bat
+docs/
+.claude/
+*.docx
+presentazione.html
+ambiti.json
+users.json
+settings_llm.json

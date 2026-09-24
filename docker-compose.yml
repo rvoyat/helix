@@ -1,0 +1,58 @@
+services:
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8093:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8092:8092"
+    volumes:
+      - ./docs:/app/docs
+      - ./ambiti.json:/app/ambiti.json
+      - ./users.json:/app/users.json
+      - ./settings_llm.json:/app/settings_llm.json
+      - hf_cache:/root/.cache/huggingface
+    env_file:
+      - .env
+    environment:
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - DOCS_FOLDER=/app/docs
+    depends_on:
+      chromadb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8092/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  chroma_data:
+  hf_cache:

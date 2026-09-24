@@ -1,0 +1,9 @@
+{
+  "LLM_PROVIDER": "claude",
+  "GEMINI_API_KEY": "",
+  "GEMINI_MODEL": "gemini-2.5-flash",
+  "CLAUDE_API_KEY": "",
+  "CLAUDE_MODEL": "claude-sonnet-4-6",
+  "INGESTION_PROVIDER": "langchain",
+  "LLAMAPARSE_API_KEY": "llx-UrncZEhoPGDJ9Q0c25HCxxQRvccONBX8M3RtwNqSVmgIZD3q"
+}

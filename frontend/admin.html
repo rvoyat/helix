@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HELIX — Pannello Amministratore</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <script src="auth.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080810; --surface: #0f0f1c; --surface2: #181828;
+      --purple: #A100FF; --purple-dim: #7000b3; --cyan: #00C9FF;
+      --green: #22c55e; --red: #ef4444; --orange: #f97316;
+      --text: #F0F0F0; --muted: #888; --border: rgba(161,0,255,0.18); --radius: 14px;
+    }
+    html, body { min-height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+    header {
+      position: sticky; top: 0; z-index: 100; height: 64px;
+      background: rgba(8,8,16,0.95); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-mark {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.35rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px;
+    }
+    .logo-sub { font-size: 0.68rem; color: var(--muted); border-left: 1px solid var(--border); padding-left: 10px; line-height: 1.4; }
+    .page-tag { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--orange); }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .hdr-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 14px;
+      color: var(--muted); font-size: 0.82rem; cursor: pointer;
+      text-decoration: none; transition: border-color 0.2s, color 0.2s;
+    }
+    .hdr-btn:hover { border-color: var(--purple); color: var(--text); }
+    .user-chip {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.78rem; color: var(--muted);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 12px;
+    }
+    .user-chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 6px var(--orange); }
+
+    /* ── TABS ── */
+    .page-wrap { max-width: 960px; margin: 0 auto; padding: 32px 24px 60px; }
+    .admin-title {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+    .admin-subtitle { font-size: 0.85rem; color: var(--muted); margin-bottom: 28px; }
+
+    .tab-bar { display: flex; gap: 4px; margin-bottom: 28px; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+    .tab-btn {
+      padding: 10px 20px; background: transparent; border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--muted);
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--purple); border-bottom-color: var(--purple); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+    }
+    .card-title {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700;
+      color: var(--text); margin-bottom: 16px;
+    }
+
+    /* ── USER TABLE ── */
+    .user-table { width: 100%; border-collapse: collapse; }
+    .user-table th { text-align: left; font-size: 0.72rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); padding: 0 12px 10px; border-bottom: 1px solid var(--border); }
+    .user-table td { padding: 12px; border-bottom: 1px solid rgba(161,0,255,0.08); vertical-align: middle; font-size: 0.88rem; }
+    .user-table tr:last-child td { border-bottom: none; }
+    .user-table tr:hover td { background: rgba(161,0,255,0.03); }
+    .role-badge {
+      display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+    }
+    .role-badge.admin { background: rgba(249,115,22,0.15); color: var(--orange); border: 1px solid rgba(249,115,22,0.3); }
+    .role-badge.guest { background: rgba(0,201,255,0.12); color: var(--cyan); border: 1px solid rgba(0,201,255,0.25); }
+    .tbl-actions { display: flex; gap: 6px; }
+    .tbl-btn {
+      border-radius: 6px; padding: 5px 10px; font-size: 0.75rem; font-weight: 500; cursor: pointer;
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .tbl-btn.edit:hover { background: rgba(0,201,255,0.08); border-color: var(--cyan); color: var(--cyan); }
+    .tbl-btn.del:hover  { background: rgba(239,68,68,0.08); border-color: var(--red); color: var(--red); }
+
+    /* ── FORM ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+    .form-label .req { color: var(--red); margin-left: 2px; }
+    .form-input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px;
+      color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--purple); }
+    .form-hint { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+    select.form-input { cursor: pointer; }
+
+    .btn-primary {
+      background: var(--purple); border: none; border-radius: 8px;
+      padding: 10px 22px; color: #fff; font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem; font-weight: 500; cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover { background: var(--purple-dim); }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-secondary {
+      background: transparent; border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 18px; color: var(--muted); font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem; cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--purple); color: var(--text); }
+
+    /* ── MODAL ── */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 600;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    #modal-overlay.active { display: flex; }
+    #modal-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; width: 100%; max-width: 440px;
+      padding: 28px; animation: modal-in 0.25s ease;
+    }
+    @keyframes modal-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+    .modal-title { font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+
+    /* ── TOAST ── */
+    #toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; pointer-events: none; }
+    .toast { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 18px; font-size: 0.86rem; display: flex; align-items: center; gap: 10px; max-width: 340px; animation: toast-in 0.25s ease; pointer-events: all; }
+    .toast.success { border-color: rgba(34,197,94,0.4); }
+    .toast.error   { border-color: rgba(239,68,68,0.4); }
+    @keyframes toast-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    .toast.removing { animation: toast-out 0.2s ease forwards; }
+    @keyframes toast-out { to { opacity: 0; transform: translateX(20px); } }
+
+    .empty-row td { text-align: center; padding: 32px; color: var(--muted); font-size: 0.85rem; }
+
+    /* ── LLM PROVIDER TABS ── */
+    .prov-bar { display: flex; gap: 8px; margin-bottom: 24px; }
+    .prov-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: 10px; cursor: pointer;
+      font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 600;
+      border: 2px solid var(--border); background: transparent; color: var(--muted);
+      transition: all 0.2s;
+    }
+    .prov-btn:hover { border-color: var(--purple); color: var(--text); }
+    .prov-btn.active { border-color: var(--purple); background: rgba(161,0,255,0.1); color: var(--text); }
+    .prov-btn.active-claude { border-color: #e8a95a; background: rgba(232,169,90,0.1); color: var(--text); }
+    .prov-section { display: none; }
+    .prov-section.active { display: block; }
+    .model-group { position: relative; }
+    .model-custom { margin-top: 6px; }
+    .provider-badge {
+      display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 2px 8px;
+      border-radius: 12px; margin-left: 6px; vertical-align: middle;
+    }
+    .badge-gemini { background: rgba(66,133,244,0.15); color: #4285f4; border: 1px solid rgba(66,133,244,0.3); }
+    .badge-claude { background: rgba(232,169,90,0.15); color: #e8a95a; border: 1px solid rgba(232,169,90,0.3); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-mark">HELIX</span>
+    <span class="logo-sub">IE Health Delivery<br>Powered by Accenture</span>
+  </div>
+  <span class="page-tag">⚙ Pannello Admin</span>
+  <div class="header-right">
+    <div class="user-chip"><span class="user-chip-dot"></span><span id="hdr-username">…</span></div>
+    <a href="index.html" class="hdr-btn">💬 Chatbot</a>
+    <button class="hdr-btn" onclick="helixLogout()">Esci</button>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <div class="admin-title">Pannello Amministratore</div>
+  <div class="admin-subtitle">Gestisci utenti, profili e parametri LLM di HELIX.</div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('users')">👥 Gestione Utenti</button>
+    <button class="tab-btn" onclick="switchTab('llm')">⚙️ Parametri LLM</button>
+  </div>
+
+  <!-- TAB: UTENTI -->
+  <div class="tab-panel active" id="tab-users">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:0">Utenti registrati</div>
+        <button class="btn-primary" onclick="openCreateUser()">＋ Nuovo utente</button>
+      </div>
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Ruolo</th>
+            <th>Ambito predefinito</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody">
+          <tr class="empty-row"><td colspan="4">Caricamento…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: LLM -->
+  <div class="tab-panel" id="tab-llm">
+    <div class="card">
+      <div class="card-title">Provider LLM</div>
+      <div class="prov-bar">
+        <button type="button" class="prov-btn active" id="btn-gemini" onclick="setLLMProvider('gemini')">
+          ☁️ Google Gemini <span class="provider-badge badge-gemini">Gemini</span>
+        </button>
+        <button type="button" class="prov-btn" id="btn-claude" onclick="setLLMProvider('claude')">
+          🤖 Anthropic Claude <span class="provider-badge badge-claude">Claude</span>
+        </button>
+      </div>
+
+      <form id="llm-form" onsubmit="saveLLMSettings(event)">
+        <input type="hidden" id="llm-provider-choice" value="gemini" />
+
+        <!-- ── GEMINI ── -->
+        <div class="prov-section active" id="section-gemini">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">API Key Gemini <span class="req">*</span></label>
+              <input class="form-input" id="llm-gemini-key" type="password" placeholder="AIza…" autocomplete="off" />
+              <div class="form-hint">Chiave Google Generative AI (console.cloud.google.com).</div>
+            </div>
+            <div class="form-group model-group">
+              <label class="form-label">Modello Gemini <span class="req">*</span></label>
+              <select class="form-input" id="llm-gemini-model-sel" onchange="onModelChange('gemini')">
+                <option value="gemini-2.5-flash">gemini-2.5-flash — Flash (consigliato)</option>
+                <option value="gemini-2.5-pro">gemini-2.5-pro — Pro</option>
+                <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                <option value="__custom__">Personalizzato…</option>
+              </select>
+              <input class="form-input model-custom" id="llm-gemini-model-custom"
+                     type="text" placeholder="es. gemini-exp-1206" style="display:none" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CLAUDE ── -->
+        <div class="prov-section" id="section-claude">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">API Key Claude <span class="req">*</span></label>
+              <input class="form-input" id="llm-claude-key" type="password" placeholder="sk-ant-…" autocomplete="off" />
+              <div class="form-hint">Chiave Anthropic (console.anthropic.com).</div>
+            </div>
+            <div class="form-group model-group">
+              <label class="form-label">Modello Claude <span class="req">*</span></label>
+              <select class="form-input" id="llm-claude-model-sel" onchange="onModelChange('claude')">
+                <option value="claude-sonnet-5">Claude Sonnet 5 (consigliato)</option>
+                <option value="claude-opus-5-5">Claude Opus 5.5 — massima qualità</option>
+                <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
+                <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — veloce</option>
+                <option value="__custom__">Personalizzato…</option>
+              </select>
+              <input class="form-input model-custom" id="llm-claude-model-custom"
+                     type="text" placeholder="es. claude-3-5-sonnet-20241022" style="display:none" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── INGESTION (comune) ── -->
+        <div class="card-title" style="font-size:0.95rem;margin:20px 0 14px">Ingestion documenti</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Provider di ingestion</label>
+            <select class="form-input" id="llm-ingestion">
+              <option value="langchain">LangChain (PyMuPDF)</option>
+              <option value="llamaparse">LlamaParse</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">API Key LlamaParse</label>
+            <input class="form-input" id="llm-llama-key" type="password" placeholder="llx-…" autocomplete="off" />
+            <div class="form-hint">Necessaria solo se provider = LlamaParse.</div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">Salva impostazioni →</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: crea/modifica utente -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <div class="modal-title" id="modal-title">Nuovo utente</div>
+    <div class="form-group">
+      <label class="form-label">Username <span class="req">*</span></label>
+      <input class="form-input" id="m-username" type="text" placeholder="es. mrossi" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="m-pwd-label">Password <span class="req">*</span></label>
+      <input class="form-input" id="m-password" type="password" placeholder="Password" autocomplete="new-password" />
+      <div class="form-hint" id="m-pwd-hint"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ruolo</label>
+      <select class="form-input" id="m-role">
+        <option value="guest">Guest — chatbot + documenti</option>
+        <option value="admin">Admin — accesso completo</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+      <button class="btn-primary" onclick="submitUserModal()">Salva →</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+  let _editingUsername = null;
+  let _allAmbiti = [];
+
+  // ── Tabs ─────────────────────────────────────────────────────────────
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', (i === 0 && name === 'users') || (i === 1 && name === 'llm'));
+    });
+    document.getElementById('tab-users').classList.toggle('active', name === 'users');
+    document.getElementById('tab-llm').classList.toggle('active',  name === 'llm');
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────
+
+  function toast(msg, type = 'info') {
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => { el.classList.add('removing'); setTimeout(() => el.remove(), 220); }, 3500);
+  }
+
+  // ── Users ─────────────────────────────────────────────────────────────
+
+  async function loadUsers() {
+    try {
+      const [uRes, aRes] = await Promise.all([
+        fetch(`${API_BASE}/admin/users`, { headers: authHeaders() }),
+        fetch(`${API_BASE}/ambiti`,      { headers: authHeaders() }),
+      ]);
+      const uData = await uRes.json();
+      const aData = await aRes.json();
+      _allAmbiti = aData.ambiti || [];
+      renderUsersTable(uData.users || []);
+    } catch {
+      toast('Errore caricamento utenti.', 'error');
+    }
+  }
+
+  function renderUsersTable(users) {
+    const tbody = document.getElementById('users-tbody');
+    if (!users.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Nessun utente presente.</td></tr>';
+      return;
+    }
+    const currentUser = getUser();
+    tbody.innerHTML = users.map(u => {
+      const defaultA = _allAmbiti.find(a => a.slug === u.default_ambito);
+      const defaultLabel = defaultA ? `${defaultA.icon || '📂'} ${escHtml(defaultA.name)}` : '<span style="color:var(--muted)">—</span>';
+      const isSelf = currentUser && u.username === currentUser.username;
+      return `
+        <tr>
+          <td><strong>${escHtml(u.username)}</strong>${isSelf ? ' <span style="font-size:0.7rem;color:var(--muted)">(tu)</span>' : ''}</td>
+          <td><span class="role-badge ${u.role}">${u.role}</span></td>
+          <td>${defaultLabel}</td>
+          <td>
+            <div class="tbl-actions">
+              <button class="tbl-btn edit" onclick="openEditUser('${escHtml(u.username)}','${u.role}')">✏️ Modifica</button>
+              ${!isSelf ? `<button class="tbl-btn del" onclick="deleteUser('${escHtml(u.username)}')">🗑 Elimina</button>` : ''}
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  function openCreateUser() {
+    _editingUsername = null;
+    document.getElementById('modal-title').textContent = 'Nuovo utente';
+    document.getElementById('m-username').value = '';
+    document.getElementById('m-username').disabled = false;
+    document.getElementById('m-password').value = '';
+    document.getElementById('m-pwd-label').innerHTML = 'Password <span class="req">*</span>';
+    document.getElementById('m-pwd-hint').textContent = '';
+    document.getElementById('m-role').value = 'guest';
+    document.getElementById('modal-overlay').classList.add('active');
+    setTimeout(() => document.getElementById('m-username').focus(), 50);
+  }
+
+  function openEditUser(username, role) {
+    _editingUsername = username;
+    document.getElementById('modal-title').textContent = `Modifica: ${username}`;
+    document.getElementById('m-username').value = username;
+    document.getElementById('m-username').disabled = true;
+    document.getElementById('m-password').value = '';
+    document.getElementById('m-pwd-label').innerHTML = 'Nuova password';
+    document.getElementById('m-pwd-hint').textContent = 'Lascia vuoto per non modificare.';
+    document.getElementById('m-role').value = role;
+    document.getElementById('modal-overlay').classList.add('active');
+    setTimeout(() => document.getElementById('m-password').focus(), 50);
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('active');
+    _editingUsername = null;
+  }
+
+  async function submitUserModal() {
+    const username = document.getElementById('m-username').value.trim();
+    const password = document.getElementById('m-password').value;
+    const role     = document.getElementById('m-role').value;
+
+    if (!_editingUsername && (!username || !password)) {
+      toast('Username e password sono obbligatori.', 'error'); return;
+    }
+
+    try {
+      let res;
+      if (_editingUsername) {
+        const body = { role };
+        if (password) body.password = password;
+        res = await fetch(`${API_BASE}/admin/users/${encodeURIComponent(_editingUsername)}`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify(body),
+        });
+      } else {
+        res = await fetch(`${API_BASE}/admin/users`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ username, password, role }),
+        });
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Errore');
+      toast(data.message, 'success');
+      closeModal();
+      loadUsers();
+    } catch (err) {
+      toast(`Errore: ${err.message}`, 'error');
+    }
+  }
+
+  async function deleteUser(username) {
+    if (!confirm(`Eliminare l'utente "${username}"?`)) return;
+    try {
+      const res  = await fetch(`${API_BASE}/admin/users/${encodeURIComponent(username)}`, {
+        method: 'DELETE', headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Errore');
+      toast(data.message, 'success');
+      loadUsers();
+    } catch (err) {
+      toast(`Errore: ${err.message}`, 'error');
+    }
+  }
+
+  // ── LLM Settings ──────────────────────────────────────────────────────
+
+  const GEMINI_MODELS = ['gemini-2.5-flash','gemini-2.5-pro','gemini-1.5-flash','gemini-1.5-pro'];
+  const CLAUDE_MODELS = ['claude-sonnet-5','claude-opus-5-5','claude-sonnet-4-6','claude-haiku-4-5-20251001'];
+
+  function setLLMProvider(name) {
+    document.getElementById('llm-provider-choice').value = name;
+
+    const gBtn = document.getElementById('btn-gemini');
+    const cBtn = document.getElementById('btn-claude');
+    gBtn.className = 'prov-btn' + (name === 'gemini' ? ' active' : '');
+    cBtn.className = 'prov-btn' + (name === 'claude' ? ' active active-claude' : '');
+
+    document.getElementById('section-gemini').classList.toggle('active', name === 'gemini');
+    document.getElementById('section-claude').classList.toggle('active', name === 'claude');
+  }
+
+  function onModelChange(provider) {
+    const sel = document.getElementById(`llm-${provider}-model-sel`);
+    const custom = document.getElementById(`llm-${provider}-model-custom`);
+    custom.style.display = sel.value === '__custom__' ? 'block' : 'none';
+    if (sel.value === '__custom__') custom.focus();
+  }
+
+  function _setModelField(provider, value, knownList) {
+    const sel    = document.getElementById(`llm-${provider}-model-sel`);
+    const custom = document.getElementById(`llm-${provider}-model-custom`);
+    if (knownList.includes(value)) {
+      sel.value = value;
+      custom.style.display = 'none';
+    } else {
+      sel.value = '__custom__';
+      custom.value = value;
+      custom.style.display = 'block';
+    }
+  }
+
+  function _getModelValue(provider) {
+    const sel = document.getElementById(`llm-${provider}-model-sel`);
+    if (sel.value === '__custom__') {
+      return document.getElementById(`llm-${provider}-model-custom`).value.trim();
+    }
+    return sel.value;
+  }
+
+  async function loadLLMSettings() {
+    try {
+      const res  = await fetch(`${API_BASE}/admin/settings`, { headers: authHeaders() });
+      const data = await res.json();
+
+      setLLMProvider(data.LLM_PROVIDER || 'gemini');
+      document.getElementById('llm-gemini-key').value = data.GEMINI_API_KEY   || '';
+      document.getElementById('llm-claude-key').value = data.CLAUDE_API_KEY   || '';
+      _setModelField('gemini', data.GEMINI_MODEL || 'gemini-2.5-flash', GEMINI_MODELS);
+      _setModelField('claude', data.CLAUDE_MODEL || 'claude-sonnet-5',  CLAUDE_MODELS);
+      document.getElementById('llm-ingestion').value  = data.INGESTION_PROVIDER || 'langchain';
+      document.getElementById('llm-llama-key').value  = data.LLAMAPARSE_API_KEY || '';
+    } catch {
+      toast('Errore caricamento impostazioni LLM.', 'error');
+    }
+  }
+
+  async function saveLLMSettings(e) {
+    e.preventDefault();
+    const provider = document.getElementById('llm-provider-choice').value;
+    const geminiModel = _getModelValue('gemini');
+    const claudeModel = _getModelValue('claude');
+
+    if (provider === 'gemini' && (!document.getElementById('llm-gemini-key').value.trim() || !geminiModel)) {
+      toast('API Key e Modello Gemini sono obbligatori.', 'error'); return;
+    }
+    if (provider === 'claude' && (!document.getElementById('llm-claude-key').value.trim() || !claudeModel)) {
+      toast('API Key e Modello Claude sono obbligatori.', 'error'); return;
+    }
+
+    const body = {
+      LLM_PROVIDER:       provider,
+      GEMINI_API_KEY:     document.getElementById('llm-gemini-key').value.trim(),
+      GEMINI_MODEL:       geminiModel,
+      CLAUDE_API_KEY:     document.getElementById('llm-claude-key').value.trim(),
+      CLAUDE_MODEL:       claudeModel,
+      INGESTION_PROVIDER: document.getElementById('llm-ingestion').value,
+      LLAMAPARSE_API_KEY: document.getElementById('llm-llama-key').value.trim(),
+    };
+    try {
+      const res  = await fetch(`${API_BASE}/admin/settings`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Errore');
+      toast(`${data.message} (provider: ${provider.toUpperCase()})`, 'success');
+    } catch (err) {
+      toast(`Errore: ${err.message}`, 'error');
+    }
+  }
+
+  // ── Utils ─────────────────────────────────────────────────────────────
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Close modal on backdrop
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+
+  // ── Init ─────────────────────────────────────────────────────────────
+
+  (async () => {
+    const user = await checkAuth(true);
+    if (!user) return;
+    document.getElementById('hdr-username').textContent = user.username;
+    await Promise.all([loadUsers(), loadLLMSettings()]);
+  })();
+</script>
+</body>
+</html>

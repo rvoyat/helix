@@ -1,0 +1,12 @@
+{
+  "rvoyat": {
+    "password": "d5fa97cb4eef0e9d501fa309d97b961386bbb70efb67ae8c9748d06592e6fa99",
+    "role": "admin",
+    "default_ambito": "asssistenza-cce-aria-lombardia-ngh"
+  },
+  "guest": {
+    "password": "84983c60f7daadc1cb8698621f802c0d9f9a3c3c295c810748fb048115c186ec",
+    "role": "guest",
+    "default_ambito": null
+  }
+}

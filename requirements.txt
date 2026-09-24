@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+python-dotenv
+google-generativeai
+anthropic
+PyMuPDF
+pdfplumber
+python-multipart
+chromadb
+langchain
+langchain-core
+langchain-chroma
+langchain-huggingface
+langchain-text-splitters
+sentence-transformers
+llama-parse
+nest_asyncio

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HELIX · Accesso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080810;
+      --surface:  #0f0f1c;
+      --surface2: #141428;
+      --purple:   #A100FF;
+      --cyan:     #00C9FF;
+      --border:   rgba(161, 0, 255, 0.18);
+      --border-hover: rgba(161, 0, 255, 0.45);
+      --text:     #e8e8f4;
+      --text-dim: rgba(232, 232, 244, 0.55);
+      --error:    #ff4d6a;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* Subtle grid background */
+    body {
+      background-image:
+        linear-gradient(rgba(161,0,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(161,0,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15,15,28,0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .logo {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.7rem;
+      letter-spacing: 0.18em;
+      background: linear-gradient(90deg, var(--purple) 0%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+    }
+
+    .logo-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      margin: 0 6px 3px;
+      vertical-align: middle;
+      -webkit-text-fill-color: initial;
+      background-clip: unset;
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    /* ── MAIN ───────────────────────────────────────────── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Title block */
+    .login-heading {
+      text-align: center;
+    }
+
+    .login-heading h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 2.4rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, var(--purple) 0%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .login-heading p {
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* Card */
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px 32px 32px;
+      box-shadow:
+        0 0 0 1px rgba(161,0,255,0.06),
+        0 8px 40px rgba(0,0,0,0.5),
+        0 0 60px rgba(161,0,255,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative glow top edge */
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 20%; right: 20%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--purple), var(--cyan), transparent);
+      opacity: 0.6;
+    }
+
+    /* Form */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .form-group:last-of-type {
+      margin-bottom: 28px;
+    }
+
+    label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: rgba(161, 0, 255, 0.55);
+      box-shadow: 0 0 0 3px rgba(161,0,255,0.12);
+    }
+
+    input::placeholder {
+      color: rgba(232,232,244,0.25);
+    }
+
+    /* Submit button */
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 7px;
+      background: linear-gradient(90deg, var(--purple) 0%, #6600cc 50%, var(--cyan) 100%);
+      background-size: 200% 100%;
+      background-position: 0% 50%;
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background-position 0.4s ease, opacity 0.2s, transform 0.1s;
+      box-shadow: 0 4px 20px rgba(161,0,255,0.35);
+    }
+
+    .btn-login:hover:not(:disabled) {
+      background-position: 100% 50%;
+      box-shadow: 0 4px 28px rgba(161,0,255,0.55);
+    }
+
+    .btn-login:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn-login:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    /* Error message */
+    #error-msg {
+      display: none;
+      margin-top: 16px;
+      padding: 10px 14px;
+      background: rgba(255, 77, 106, 0.1);
+      border: 1px solid rgba(255, 77, 106, 0.3);
+      border-radius: 7px;
+      color: var(--error);
+      font-size: 0.85rem;
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 20px 32px;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .login-card { padding: 28px 20px 24px; }
+      .login-heading h1 { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <span class="logo">HEL<span class="logo-dot"></span>IX</span>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <div class="login-wrapper">
+
+      <div class="login-heading">
+        <h1>Accesso</h1>
+        <p>IE Health Delivery &middot; Accenture</p>
+      </div>
+
+      <div class="login-card">
+        <form id="login-form" autocomplete="on" novalidate>
+
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="inserisci username"
+              autocomplete="username"
+              autofocus
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <button type="submit" id="login-btn" class="btn-login">Accedi &rarr;</button>
+
+          <div id="error-msg">Credenziali non valide. Riprova.</div>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>HELIX &copy; 2025 Accenture IE Health</footer>
+
+  <script>
+    const API_BASE = 'http://localhost:8092';
+
+    async function doLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      if (!username || !password) return;
+
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.textContent = 'Accesso in corso…';
+      document.getElementById('error-msg').style.display = 'none';
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        localStorage.setItem('helix_token', data.token);
+        localStorage.setItem('helix_user', JSON.stringify(data.user));
+        window.location.href = 'index.html';
+      } catch {
+        document.getElementById('error-msg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Accedi →';
+      }
+    }
+
+    document.getElementById('login-form').addEventListener('submit', doLogin);
+
+    // If already logged in, skip to app
+    if (localStorage.getItem('helix_token')) window.location.href = 'index.html';
+  </script>
+
+</body>
+</html>

@@ -6,6 +6,7 @@ html.light {
   --text:        #12122a;
   --text-muted:  #374151;
   --muted:       #374151;
+  --text-dim:    #374151;   /* login.html uses --text-dim */
   --bubble-user: #eaeaf8;
   --bubble-bot:  #ffffff;
   --border:      rgba(161, 0, 255, 0.18);
@@ -68,27 +69,74 @@ html.light #msg-input {
   color: var(--text);
 }
 
+/* Override all hardcoded light-on-dark placeholder colors */
 html.light input::placeholder,
-html.light #msg-input::placeholder { color: rgba(55,65,81,0.45); }
+html.light #msg-input::placeholder,
+html.light textarea::placeholder { color: rgba(55,65,81,0.45) !important; }
 
-/* Login card */
+/* Login card and footer */
 html.light .login-card {
   box-shadow: 0 2px 24px rgba(161,0,255,0.08), 0 1px 4px rgba(0,0,0,0.06) !important;
 }
 
-html.light label { color: #374151 !important; }
+html.light .login-heading p,
+html.light footer { color: #374151 !important; }
+
+html.light label,
+html.light .form-label { color: #374151 !important; }
+
+/* docs.html + admin.html specific muted elements */
+html.light .tab-btn,
+html.light .tab-count,
+html.light .section-desc,
+html.light .stat-lbl,
+html.light .upload-zone p,
+html.light .list-title,
+html.light .doc-meta,
+html.light .empty-state,
+html.light .empty-row td,
+html.light .form-hint,
+html.light .user-table th,
+html.light .admin-subtitle,
+html.light .picker-manage-link { color: #374151 !important; }
+
+/* Select/textarea in forms */
+html.light select,
+html.light textarea {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: rgba(55,65,81,0.3);
+}
+
+/* Provider buttons (admin LLM settings) */
+html.light .prov-btn {
+  color: #374151 !important;
+  border-color: rgba(55,65,81,0.3) !important;
+}
+
+/* Cancel/secondary buttons */
+html.light button[style*="color: var(--muted)"],
+html.light [style*="color: var(--muted)"] { color: #374151 !important; }
 
 /* Bubble content */
 html.light .bubble code { color: #7000c8; }
 html.light .bubble pre  { background: rgba(161,0,255,0.05); }
+html.light .bubble h4   { color: #374151; }
 html.light .bubble .source-footer,
+html.light .bubble .source-footer strong,
 html.light .bubble .doc-links-label { color: #374151; }
+html.light .bubble li::marker { color: var(--purple); }
 
 /* Ambito card descriptions */
 html.light .card-docs { color: #6d28d9; opacity: 1; }
+html.light .picker-empty { color: #374151; }
 
 /* Scrollbar */
 html.light #chat-area::-webkit-scrollbar-thumb { background: rgba(161,0,255,0.25); }
+
+/* Overlay/modal backdrop */
+html.light #picker-modal { background: var(--surface); }
+html.light #overlay .overlay-card { background: var(--surface); }
 
 /* ── Particle canvas (behind everything) ────────────────────────────── */
 #helix-canvas {

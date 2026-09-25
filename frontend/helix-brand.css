@@ -1,0 +1,124 @@
+/* ── Light theme overrides ──────────────────────────────────────────── */
+html.light {
+  --bg:          #f2f2fb;
+  --surface:     #ffffff;
+  --surface2:    #e8e8f6;
+  --text:        #12122a;
+  --text-muted:  #5a5a7a;
+  --muted:       #5a5a7a;
+  --bubble-user: #eaeaf8;
+  --bubble-bot:  #ffffff;
+  --border:      rgba(161, 0, 255, 0.13);
+}
+
+html.light header {
+  background: rgba(242, 242, 251, 0.94) !important;
+  border-bottom-color: rgba(161, 0, 255, 0.13) !important;
+}
+
+html.light #input-bar {
+  background: rgba(242, 242, 251, 0.97) !important;
+  border-top-color: rgba(161, 0, 255, 0.13) !important;
+}
+
+html.light .login-card {
+  box-shadow: 0 2px 24px rgba(161,0,255,0.08), 0 1px 4px rgba(0,0,0,0.06) !important;
+}
+
+html.light input[type="text"],
+html.light input[type="password"] {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+html.light input::placeholder { color: rgba(90,90,122,0.45); }
+
+html.light .bubble code { color: #7000c8; }
+html.light .bubble pre  { background: rgba(161,0,255,0.05); }
+
+/* ── Particle canvas (behind everything) ────────────────────────────── */
+#helix-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure content layers sit above canvas */
+header,
+main,
+footer,
+#chat-area,
+#input-bar,
+#picker-overlay,
+.page-layout,
+.page-wrap,
+.login-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Logo layout ─────────────────────────────────────────────────────── */
+.logo {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  text-decoration: none;
+}
+
+.logo-icon { flex-shrink: 0; }
+
+.logo-text-block {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.logo-mark-new {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  background: linear-gradient(135deg, #A100FF, #00C9FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.logo-sub-brand {
+  font-size: 0.62rem;
+  font-weight: 400;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-muted, #888);
+  letter-spacing: 0.05em;
+  -webkit-text-fill-color: unset;
+  background: none;
+  line-height: 1;
+}
+
+/* Login page larger logo */
+.logo-login .logo-mark-new  { font-size: 1.7rem; }
+.logo-login .logo-sub-brand { font-size: 0.7rem; }
+
+/* ── Theme toggle button ─────────────────────────────────────────────── */
+.theme-toggle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 9px;
+  cursor: pointer;
+  color: var(--text-muted, #888);
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  border-color: #A100FF;
+  color: var(--text);
+}

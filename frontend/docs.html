@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HELIX — Gestione Documenti</title>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="helix-brand.css" />
+  <script>(function(){var t=localStorage.getItem('helix_theme');if(t==='light')document.documentElement.classList.add('light');})()</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -294,16 +296,14 @@
     }
   </style>
   <script src="auth.js"></script>
+  <script src="helix-brand.js"></script>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <span class="logo-mark">HELIX</span>
-    <span class="logo-sub">IE Health Delivery<br>Powered by Accenture</span>
-  </div>
+  <div class="logo"></div>
   <span class="page-tag">Gestione Documenti</span>
-  <div style="display:flex;align-items:center;gap:8px">
+  <div class="header-right" style="display:flex;align-items:center;gap:8px">
     <span id="user-chip" class="user-chip" style="display:none"></span>
     <a id="admin-link" href="admin.html" class="back-btn" style="display:none">⚙️ Admin</a>
     <button class="back-btn" style="cursor:pointer;font-family:inherit" onclick="helixLogout()">Esci</button>
@@ -767,6 +767,7 @@
   (async () => {
     const user = await checkAuth();
     if (!user) return;
+    if (window.helixApplyUserTheme) window.helixApplyUserTheme(user);
     renderUserInfo(user);
     loadAmbiti();
   })();

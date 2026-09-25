@@ -54,13 +54,13 @@ def get_user(token: str) -> Optional[Dict]:
     u = users.get(username)
     if not u:
         return None
-    return {"username": username, "role": u["role"], "default_ambito": u.get("default_ambito")}
+    return {"username": username, "role": u["role"], "default_ambito": u.get("default_ambito"), "theme": u.get("theme", "dark")}
 
 
 def list_users() -> List[Dict]:
     users = _load()
     return [
-        {"username": k, "role": v["role"], "default_ambito": v.get("default_ambito")}
+        {"username": k, "role": v["role"], "default_ambito": v.get("default_ambito"), "theme": v.get("theme", "dark")}
         for k, v in users.items()
     ]
 
@@ -69,13 +69,14 @@ def create_user(username: str, password: str, role: str) -> bool:
     users = _load()
     if username in users:
         return False
-    users[username] = {"password": _hash(password), "role": role, "default_ambito": None}
+    users[username] = {"password": _hash(password), "role": role, "default_ambito": None, "theme": "dark"}
     _save(users)
     return True
 
 
 def update_user(username: str, password: Optional[str] = None,
-                role: Optional[str] = None, default_ambito: Optional[str] = None) -> bool:
+                role: Optional[str] = None, default_ambito: Optional[str] = None,
+                theme: Optional[str] = None) -> bool:
     users = _load()
     if username not in users:
         return False
@@ -85,6 +86,8 @@ def update_user(username: str, password: Optional[str] = None,
         users[username]["role"] = role
     if default_ambito is not None:
         users[username]["default_ambito"] = default_ambito if default_ambito != "" else None
+    if theme is not None and theme in ("dark", "light"):
+        users[username]["theme"] = theme
     _save(users)
     return True
 

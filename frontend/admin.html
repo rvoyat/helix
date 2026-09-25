@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HELIX — Pannello Amministratore</title>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="helix-brand.css" />
+  <script>(function(){var t=localStorage.getItem('helix_theme');if(t==='light')document.documentElement.classList.add('light');})()</script>
   <script src="auth.js"></script>
+  <script src="helix-brand.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -185,10 +188,7 @@
 <body>
 
 <header>
-  <div class="logo">
-    <span class="logo-mark">HELIX</span>
-    <span class="logo-sub">IE Health Delivery<br>Powered by Accenture</span>
-  </div>
+  <div class="logo"></div>
   <span class="page-tag">⚙ Pannello Admin</span>
   <div class="header-right">
     <div class="user-chip"><span class="user-chip-dot"></span><span id="hdr-username">…</span></div>
@@ -604,6 +604,7 @@
   (async () => {
     const user = await checkAuth(true);
     if (!user) return;
+    if (window.helixApplyUserTheme) window.helixApplyUserTheme(user);
     document.getElementById('hdr-username').textContent = user.username;
     await Promise.all([loadUsers(), loadLLMSettings()]);
   })();

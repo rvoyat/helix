@@ -153,6 +153,7 @@ class UserUpdate(BaseModel):
 class MeUpdate(BaseModel):
     password: Optional[str] = None
     default_ambito: Optional[str] = None
+    theme: Optional[str] = None
 
 
 class LLMSettings(BaseModel):
@@ -199,7 +200,7 @@ async def me(request: Request):
 @app.put("/auth/me")
 async def update_me(req: MeUpdate, request: Request):
     username = request.state.user["username"]
-    auth_module.update_user(username, password=req.password, default_ambito=req.default_ambito)
+    auth_module.update_user(username, password=req.password, default_ambito=req.default_ambito, theme=req.theme)
     token = request.headers.get("Authorization", "")[7:]
     return auth_module.get_user(token)
 

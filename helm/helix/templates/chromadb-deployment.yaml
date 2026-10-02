@@ -35,13 +35,13 @@ spec:
               value: /chroma/chroma
           livenessProbe:
             httpGet:
-              path: /api/v1/heartbeat
+              path: {{ .Values.chromadb.heartbeatPath }}
               port: http
             initialDelaySeconds: 15
             periodSeconds: 15
           readinessProbe:
             httpGet:
-              path: /api/v1/heartbeat
+              path: {{ .Values.chromadb.heartbeatPath }}
               port: http
             initialDelaySeconds: 10
             periodSeconds: 10

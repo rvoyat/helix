@@ -49,6 +49,10 @@ chromadb:
     repository: chromadb/chroma
     tag: latest
     pullPolicy: IfNotPresent
+  # Endpoint di heartbeat per le probe. Le immagini chroma recenti (:latest)
+  # servono la v2; la v1 risponde 410 Gone. Usa /api/v1/heartbeat solo con
+  # immagini chroma pre-0.6.
+  heartbeatPath: /api/v2/heartbeat
   service:
     port: 8000
   resources:

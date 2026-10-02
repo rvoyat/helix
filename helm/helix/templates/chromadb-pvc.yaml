@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "helix.chromadb.fullname" . }}
+  labels:
+    {{- include "helix.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.chromadb.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.chromadb.size }}
+  {{- with .Values.persistence.chromadb.storageClassName }}
+  storageClassName: {{ . | quote }}
+  {{- end }}

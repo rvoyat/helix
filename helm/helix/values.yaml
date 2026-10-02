@@ -1,0 +1,122 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# HELIX — values di default
+# ─────────────────────────────────────────────────────────────────────────────
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Secret per il pull da GHCR (se le immagini sono private).
+# Crea il secret e referenzialo qui: es. [{ name: ghcr-cred }]
+imagePullSecrets: []
+
+# ── Backend (FastAPI) ────────────────────────────────────────────────────────
+backend:
+  image:
+    repository: ghcr.io/rvoyat/helix
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  service:
+    port: 8092
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+# ── Frontend (Nginx + statici) ───────────────────────────────────────────────
+frontend:
+  image:
+    repository: ghcr.io/rvoyat/helix-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  service:
+    port: 80
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+# ── ChromaDB (vector store) ──────────────────────────────────────────────────
+chromadb:
+  image:
+    repository: chromadb/chroma
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    port: 8000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+# ── Persistenza (PVC) ────────────────────────────────────────────────────────
+# storageClassName vuoto = StorageClass di default del cluster.
+persistence:
+  backend:
+    size: 2Gi
+    storageClassName: ""
+    accessMode: ReadWriteOnce
+  chromadb:
+    size: 5Gi
+    storageClassName: ""
+    accessMode: ReadWriteOnce
+
+# ── Configurazione applicativa (non sensibile → ConfigMap) ───────────────────
+config:
+  geminiModel: "gemini-2.5-flash"
+  claudeModel: "claude-sonnet-4-6"
+  llmProvider: "claude"            # "claude" | "gemini"
+  ingestionProvider: "langchain"   # "langchain" (locale) | "llamaparse"
+  docsFolder: "/app/docs"
+
+# ── Segreti (chiavi API → Secret) ────────────────────────────────────────────
+# NON mettere valori reali qui. Passali con --set o un file -f non committato,
+# oppure usa SealedSecrets / External Secrets in produzione.
+secrets:
+  geminiApiKey: ""
+  claudeApiKey: ""
+  llamaparseApiKey: ""
+
+# ── Seed iniziale dei file mutabili (scritti a runtime dalla UI admin) ───────
+# Vengono copiati nel PVC del backend SOLO al primo avvio (se assenti).
+seed:
+  # users.json — hash SHA-256 delle password (vedi backend/auth.py).
+  # Default: admin "rvoyat" / guest (hash presi dal repo).
+  users:
+    rvoyat:
+      password: "d5fa97cb4eef0e9d501fa309d97b961386bbb70efb67ae8c9748d06592e6fa99"
+      role: "admin"
+      default_ambito: "asssistenza-cce-aria-lombardia-ngh"
+    guest:
+      password: "84983c60f7daadc1cb8698621f802c0d9f9a3c3c295c810748fb048115c186ec"
+      role: "guest"
+      default_ambito: null
+  # ambiti.json — lista ambiti iniziale.
+  ambiti:
+    - slug: "asssistenza-cce-aria-lombardia-ngh"
+      name: "Asssistenza CCE ARIA Lombardia (NGH)"
+      description: ""
+      color: "#A100FF"
+      icon: "📂"
+
+# ── Ingress (single-host, same-origin) ───────────────────────────────────────
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "helix.example.com"
+  annotations:
+    # upload PDF: alza il limite di body per ingress-nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  tls:
+    enabled: false
+    secretName: "helix-tls"

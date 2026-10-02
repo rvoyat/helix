@@ -1,6 +1,6 @@
 const TOKEN_KEY = 'helix_token';
 const USER_KEY  = 'helix_user';
-const API_BASE  = 'http://localhost:8092';
+const API_BASE  = '';  // same-origin: le API sono instradate dall'Ingress sullo stesso host
 
 function getToken() { return localStorage.getItem(TOKEN_KEY); }
 

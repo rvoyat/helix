@@ -159,7 +159,7 @@
     // Persist to backend silently
     var token = localStorage.getItem('helix_token');
     if (token) {
-      var base = (typeof API_BASE !== 'undefined') ? API_BASE : 'http://localhost:8092';
+      var base = (typeof API_BASE !== 'undefined') ? API_BASE : '';
       fetch(base + '/auth/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },

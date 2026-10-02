@@ -1,0 +1,18 @@
+# Override d'esempio per ambiente di sviluppo (minikube/kind + ingress-nginx).
+# NON committare chiavi reali: passale con --set o un file non tracciato.
+
+ingress:
+  className: "nginx"
+  host: "helix.local"      # aggiungi a /etc/hosts: <ingress-ip> helix.local
+  tls:
+    enabled: false
+
+persistence:
+  backend:
+    size: 1Gi
+  chromadb:
+    size: 2Gi
+
+# Esempio (NON reale):
+# secrets:
+#   claudeApiKey: "sk-ant-..."

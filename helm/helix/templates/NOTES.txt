@@ -1,0 +1,34 @@
+HELIX è stato installato come release "{{ .Release.Name }}" nel namespace "{{ .Release.Namespace }}".
+
+Componenti:
+  - backend   : {{ include "helix.backend.fullname" . }}   (FastAPI, :{{ .Values.backend.service.port }})
+  - frontend  : {{ include "helix.frontend.fullname" . }}  (Nginx, :{{ .Values.frontend.service.port }})
+  - chromadb  : {{ include "helix.chromadb.fullname" . }}  (vector store, :{{ .Values.chromadb.service.port }})
+
+{{- if .Values.ingress.enabled }}
+
+Accesso:
+  http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}
+
+Assicurati che "{{ .Values.ingress.host }}" risolva verso l'Ingress controller
+(DNS o /etc/hosts verso l'IP di ingress).
+{{- else }}
+
+Ingress disabilitato. Accedi via port-forward:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "helix.frontend.fullname" . }} 8080:{{ .Values.frontend.service.port }}
+  (ma con API same-origin serve anche l'Ingress per instradare le API al backend)
+{{- end }}
+
+Verifica stato:
+  kubectl -n {{ .Release.Namespace }} get pods,svc,ingress,pvc
+
+{{- if not .Values.secrets.claudeApiKey }}
+{{- if not .Values.secrets.geminiApiKey }}
+
+ATTENZIONE: nessuna API key LLM impostata (secrets.claudeApiKey / secrets.geminiApiKey).
+Il backend parte ma le risposte del chatbot falliranno finché non imposti una chiave.
+{{- end }}
+{{- end }}
+
+Login di default (cambia la password dopo il primo accesso):
+  utente admin: "rvoyat"

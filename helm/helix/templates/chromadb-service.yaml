@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "helix.chromadb.fullname" . }}
+  labels:
+    {{- include "helix.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.chromadb.service.port }}
+      targetPort: http
+  selector:
+    {{- include "helix.selectorLabels" (dict "root" . "component" "chromadb") | nindent 4 }}

@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helix.backend.fullname" . }}
+  labels:
+    {{- include "helix.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  strategy:
+    type: Recreate   # PVC RWO + sessioni auth in memoria: replica singola
+  selector:
+    matchLabels:
+      {{- include "helix.selectorLabels" (dict "root" . "component" "backend") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "helix.selectorLabels" (dict "root" . "component" "backend") | nindent 8 }}
+      annotations:
+        # Riavvia il pod se cambiano env/seed
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-backend-env.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret-backend-env.yaml") . | sha256sum }}
+        checksum/seed-cm: {{ include (print $.Template.BasePath "/configmap-seed.yaml") . | sha256sum }}
+        checksum/seed-secret: {{ include (print $.Template.BasePath "/secret-seed.yaml") . | sha256sum }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        # Semina i file mutabili nel PVC solo se assenti (cp -n), così gli upgrade
+        # non sovrascrivono le modifiche fatte dalla UI admin.
+        - name: seed
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              mkdir -p /data/docs
+              cp -n /seed-cm/ambiti.json         /data/ambiti.json
+              cp -n /seed-secret/users.json      /data/users.json
+              cp -n /seed-secret/settings_llm.json /data/settings_llm.json
+              echo "Seed completato."
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: seed-cm
+              mountPath: /seed-cm
+            - name: seed-secret
+              mountPath: /seed-secret
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8092
+          envFrom:
+            - configMapRef:
+                name: {{ include "helix.fullname" . }}-backend-env
+            - secretRef:
+                name: {{ include "helix.fullname" . }}-backend-secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/users.json
+              subPath: users.json
+            - name: data
+              mountPath: /app/ambiti.json
+              subPath: ambiti.json
+            - name: data
+              mountPath: /app/settings_llm.json
+              subPath: settings_llm.json
+            - name: data
+              mountPath: /app/docs
+              subPath: docs
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "helix.backend.fullname" . }}-data
+        - name: seed-cm
+          configMap:
+            name: {{ include "helix.fullname" . }}-seed
+        - name: seed-secret
+          secret:
+            secretName: {{ include "helix.fullname" . }}-seed

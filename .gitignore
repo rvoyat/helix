@@ -1,0 +1,5 @@
+
+# Override test-only del chart (immagini private / secrets), non committare
+helm/helix/values-ecr.yaml
+helm/helix/values-test.yaml
+helm/helix/values-*.local.yaml

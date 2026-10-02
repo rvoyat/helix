@@ -13,3 +13,7 @@ presentazione.html
 ambiti.json
 users.json
 settings_llm.json
+
+# Evita che il Dockerfile del frontend finisca nella web root di nginx
+# (COPY frontend/ lo includerebbe). BuildKit legge comunque il file via -f.
+frontend/Dockerfile
